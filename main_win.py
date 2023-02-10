@@ -86,7 +86,8 @@ class MainWin:
             # control stage
             for i in range(len(flopy_lst)):
                 if flopy_lst[i].dead_or_alive:
-                    flopy_lst[i].control()
+                    # 3 inputs x of obstacle, upper pipe limit, bottom pipe limit
+                    flopy_lst[i].control(row_register[next_row].x_, row_register[next_row].middle_y - row_register[next_row].r_threshold + 10,row_register[next_row].middle_y + row_register[next_row].r_threshold - 10)
 
 
             # update stage
