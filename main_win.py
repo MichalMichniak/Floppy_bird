@@ -1,6 +1,8 @@
 import pygame as pg
 from mario_pipe import Row
 from flopy import Flopy
+from floppy_with_control import Flopy_control
+import random
 class MainWin:
     def __init__(self) -> None:
         pass
@@ -12,7 +14,7 @@ class MainWin:
         win = pg.display.set_mode([500,500])
         run = True
 
-        row_register = [Row(250,60,250 + 200 * i) for i in range(NR_OF_ROWS)]
+        row_register = [Row(250+random.randint(-120,120),60,250 + 200 * i) for i in range(NR_OF_ROWS)]
         fl = Flopy(X_FLOPY,250)
         next_row = 0
         begin = 0
@@ -46,6 +48,7 @@ class MainWin:
 
             if row_register[begin].x_ < -10:
                 row_register[begin].set_x(row_register[begin - 1].x_ + 200)
+                row_register[begin].set_y(250+random.randint(-120,120))
                 begin= (begin+1)%NR_OF_ROWS
             
             for i in range(len(row_register)):
@@ -59,10 +62,88 @@ class MainWin:
             pg.time.delay(40)
             pass
         pass
+    
+    def main_loop_multi_instances(self):
+        pg.init()
+        NR_OF_ROWS = 5
+        X_FLOPY = 50
+        NR_OF_INSTANCES = 40
+        win = pg.display.set_mode([500,500])
+        run = True
 
+        row_register = [Row(250+random.randint(-120,120),60,250 + 200 * i) for i in range(NR_OF_ROWS)]
+
+        flopy_lst = [Flopy_control(X_FLOPY,250) for i in range(NR_OF_INSTANCES)]
+        alive_floppy_counter = len(flopy_lst)
+        next_row = 0
+        begin = 0
+        while run:
+            win.fill((0,0,255))
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    run = False
+
+            # control stage
+            for i in range(len(flopy_lst)):
+                if flopy_lst[i].dead_or_alive:
+                    flopy_lst[i].control()
+
+
+            # update stage
+            for i in range(len(flopy_lst)):
+                if flopy_lst[i].dead_or_alive:
+                    flopy_lst[i].update()
+            for i in range(len(row_register)):
+                row_register[i].update_x(-2)
+
+            ## for each alive floppy
+            for i in range(len(flopy_lst)):
+                if flopy_lst[i].dead_or_alive:
+                    if X_FLOPY-14 < row_register[next_row].x_ < X_FLOPY+14:
+                        if (flopy_lst[i].y_< row_register[next_row].middle_y - row_register[next_row].r_threshold + 10) or (flopy_lst[i].y_> row_register[next_row].middle_y + row_register[next_row].r_threshold - 10):
+                            flopy_lst[i].kill()
+                            alive_floppy_counter -=1
+                            print(f"{i} killed")
+                    elif flopy_lst[i].y_ > 500:
+                        flopy_lst[i].kill()
+                        alive_floppy_counter -=1
+                        print(f"{i} killed")
+
+            pg.draw.circle(win,(0,0,0),(row_register[next_row].x_,250),10)
+            if row_register[next_row].x_ < X_FLOPY-14:
+                next_row= (next_row+1)%NR_OF_ROWS
+                ## update score
+                for i in range(len(flopy_lst)):
+                    if flopy_lst[i].dead_or_alive:
+                        if flopy_lst[i].dead_or_alive:
+                            flopy_lst[i].update_score()
+                            print(flopy_lst[i].score)
+
+            if row_register[begin].x_ < -10:
+                row_register[begin].set_x(row_register[begin - 1].x_ + 200)
+                row_register[begin].set_y(250+random.randint(-120,120))
+                begin= (begin+1)%NR_OF_ROWS
+            
+            for i in range(len(row_register)):
+                row_register[i].draw(win)
+            
+            for i in range(len(flopy_lst)):
+                if flopy_lst[i].dead_or_alive:
+                    flopy_lst[i].draw(win)
+
+
+            if alive_floppy_counter == 0:
+                run = False
+            #pg.draw.circle(win,(255,0,0),[250,250],1)
+            pg.display.update()
+            pg.time.delay(40)
+            pass
+        pass
+    
         
 
 
 if __name__ == "__main__":
     win = MainWin()
-    win.main_loop()
+    #win.main_loop()
+    win.main_loop_multi_instances()

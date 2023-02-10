@@ -36,6 +36,7 @@ class Row:
         x : float - middle of pipe in OX
         """
         self.x_ = x
+        self.win_width = win_width
         self.middle_y = middlie_y
         self.r_threshold = r_threshold
         self.upper = Mario_Pipe(x,middlie_y-r_threshold, middlie_y - r_threshold, True)
@@ -55,3 +56,10 @@ class Row:
         self.x_ = new_x
         self.upper.set_x(new_x)
         self.bottom.set_x(new_x)
+    
+    def set_y(self, new_y):
+        self.middle_y = new_y
+        self.upper.y_ = new_y-self.r_threshold
+        self.upper.l = new_y - self.r_threshold
+        self.bottom.y_ = new_y + self.r_threshold
+        self.bottom.l = self.win_width - (new_y + self.r_threshold)
