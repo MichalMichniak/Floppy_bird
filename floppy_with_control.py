@@ -54,6 +54,6 @@ class Flopy_control:
         x = x - self.x_
         u_l = self.y_ - u_l
         b_l = b_l - self.y_
-        ctrl = self.control_.predict([x,u_l,b_l])
+        ctrl = self.control_.predict([x,u_l,b_l,self.v_])
         if ctrl == 1:
             self.fly()

@@ -68,12 +68,13 @@ class MainWin:
         NR_OF_ROWS = 5
         X_FLOPY = 50
         NR_OF_INSTANCES = 40
+        PIPE_RADIUS = 40
         win = pg.display.set_mode([500,500])
         run = True
 
-        row_register = [Row(250+random.randint(-120,120),60,250 + 200 * i) for i in range(NR_OF_ROWS)]
+        row_register = [Row(250+random.randint(-120,120),PIPE_RADIUS,250 + 200 * i) for i in range(NR_OF_ROWS)]
 
-        flopy_lst = [Flopy_control(X_FLOPY,250) for i in range(NR_OF_INSTANCES)]
+        flopy_lst = [Flopy_control(X_FLOPY,250+random.randint(-120,120)) for i in range(NR_OF_INSTANCES)]
         alive_floppy_counter = len(flopy_lst)
         next_row = 0
         begin = 0
