@@ -121,14 +121,6 @@ class Control:
         return self.net.count(input)[0] > 0.85
 
 
-    def predict(self, input):
-        if input[2] < 0:
-            return 1
-        else:
-            return 0
-    
-
-
 
 if __name__ == '__main__':
 
