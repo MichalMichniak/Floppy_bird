@@ -10,7 +10,7 @@ TODO:
 - [x] mutations
 - [x] crossing
 - [x] recursive connection allowed 
-- [] Speciation
+- [ ] Speciation
 
 PS this project was inspired by many YT videos where plenty of details (algorithm NEAT) differ from each other.
 most of the knowledge about neat i learnt from this webpage ([https://www.cs.cmu.edu])
