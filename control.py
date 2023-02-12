@@ -2,20 +2,22 @@ import random
 from typing import List,Callable,Dict
 import numpy as np
 from copy import deepcopy
-
+import random
 class Connection:
-    def __init__(self, input_neuron, output_neuron, weight, innovation_nr, disabled_enabled = True):
+    def __init__(self, input_neuron, output_neuron, weight, innovation_nr = 0, disabled_enabled = True):
         self.input_neuron = input_neuron
         self.output_neuron = output_neuron
         self.weight = weight
         self.disabled_enabled = disabled_enabled
-        self.innovation_number = innovation_nr
+        #self.innovation_number = innovation_nr
         self.is_feedforward = False
         self.state = 0
     def __repr__(self):
-        return f"{self.innovation_number}: ({self.input_neuron},{self.output_neuron}) w{self.weight},{'F' if self.is_feedforward else 'R'}"
+        return f"({self.input_neuron},{self.output_neuron}) w{self.weight},{'F' if self.is_feedforward else 'R'}"
     def get_out(self):
         return self.weight*self.state
+    def __str__(self) -> str:
+        return f"{self.input_neuron},{self.output_neuron}"
 
 class Net:
     """
@@ -69,26 +71,36 @@ class Net:
         self.dict_of_output_conn = dict_of_output_conn
         self.dict_of_input_conn = dict_of_input_conn
 
+        self.list_of_non_disabled_conn = []
+        for i in self.connections:
+            if i.disabled_enabled:
+                self.list_of_non_disabled_conn.append(i)
+
+
 
     def count(self, input):
         out = []
         for in_neur_idx in range(len(self.nr_inputs)):
             nuron_tag = self.nr_inputs[in_neur_idx]
             for i in range(len(self.dict_of_output_conn[nuron_tag])):
-                self.dict_of_output_conn[nuron_tag][i].state = self.activation_func(input[in_neur_idx])
+                if self.dict_of_output_conn[nuron_tag][i].disabled_enabled:
+                    self.dict_of_output_conn[nuron_tag][i].state = self.activation_func(input[in_neur_idx])
         for current_neuron in self.propagation_arrangement[len(input):-len(self.nr_outputs)]:
             ## biases here \/\/\/\/
             signal = 0
             for i in  range(len(self.dict_of_input_conn[current_neuron])):
-                signal += self.dict_of_input_conn[current_neuron][i].get_out()
+                if self.dict_of_input_conn[current_neuron][i].disabled_enabled:
+                    signal += self.dict_of_input_conn[current_neuron][i].get_out()
             for i in  range(len(self.dict_of_output_conn[current_neuron])):
-                self.dict_of_output_conn[current_neuron][i].state = self.activation_func(signal)
+                if self.dict_of_output_conn[current_neuron][i].disabled_enabled:
+                    self.dict_of_output_conn[current_neuron][i].state = self.activation_func(signal)
             pass
         for current_neuron in self.propagation_arrangement[-len(self.nr_outputs):]:
             ## biases here \/\/\/\/
             signal = 0
             for i in  range(len(self.dict_of_input_conn[current_neuron])):
-                signal += self.dict_of_input_conn[current_neuron][i].get_out()
+                if self.dict_of_input_conn[current_neuron][i].disabled_enabled:
+                    signal += self.dict_of_input_conn[current_neuron][i].get_out()
             out.append(self.activation_func(signal))
         return out
 
@@ -105,8 +117,8 @@ class Control:
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
         if net == None:
-            self.conn = [Connection(0,4,1,0),Connection(0,5,1,0),Connection(5,4,1,0),Connection(2,5,1,0)]
-            self.net = Net([0,1,2,3],[4],[5],self.conn)
+            self.conn = [Connection(0,4,random.uniform(-6,6),0),Connection(1,4,random.uniform(-0.03,0.03),1),Connection(2,4,random.uniform(-0.03,0.03),2),Connection(3,4,random.uniform(-6,6),3)]
+            self.net = Net([0,1,2,3],[4],[],self.conn)
         else:
             self.net = deepcopy(net)
         pass
@@ -118,13 +130,14 @@ class Control:
             return 0
 
     def predict(self, input):
-        return self.net.count(input)[0] > 0.85
+        out = self.net.count(input)
+        return out[0] >= 0.5
 
 
 
 if __name__ == '__main__':
 
-    conn = [Connection(0,4,1,0),Connection(0,5,1,0),Connection(5,4,1,0),Connection(2,5,1,0)]
-    net = Net([0,1,2,3],[4],[5],conn)
+    conn = [Connection(0,4,random.uniform(-6,6),0),Connection(1,4,random.uniform(-0.03,0.03),1),Connection(2,4,random.uniform(-0.03,0.03),2),Connection(3,4,random.uniform(-6,6),3)]
+    net = Net([0,1,2,3],[4],[],conn)
     print(net.count([0,0,0,0]))
     pass

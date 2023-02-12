@@ -3,7 +3,7 @@ import random
 import control as crl
 class Flopy_control:
     gravity = 0.8
-    def __init__(self,x,y_start,control = None,color = None):
+    def __init__(self,x,y_start,control : crl.Control = None,color = None):
         """
         x : float - x coord of flopy
         y_start : float - y_start of flopy
@@ -21,6 +21,8 @@ class Flopy_control:
         if color == None:
             color = (255,255,0)
         self.color = color
+        self.survived_rounds = 0
+        self.avg_score = 0
 
     def update(self):
         self.v_ += self.gravity
