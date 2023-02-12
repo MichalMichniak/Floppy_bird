@@ -12,7 +12,7 @@ Added:
 Not added yet:
   Speciation
 
-PS this project was inspired by many YT videos where plenty of details (algorithm NEAT) differ from each other
+PS this project was inspired by many YT videos where plenty of details (algorithm NEAT) differ from each other.
 most of the knowledge about neat i learnt from this webpage ([https://www.cs.cmu.edu])
 
 [https://www.cs.cmu.edu]: https://www.cs.cmu.edu/afs/cs/project/jair/pub/volume21/stanley04a-html/node3.html
