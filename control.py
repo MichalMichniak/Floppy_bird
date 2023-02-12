@@ -1,6 +1,7 @@
 import random
 from typing import List,Callable,Dict
 import numpy as np
+from copy import deepcopy
 
 class Connection:
     def __init__(self, input_neuron, output_neuron, weight, innovation_nr, disabled_enabled = True):
@@ -91,22 +92,23 @@ class Net:
             out.append(self.activation_func(signal))
         return out
 
-if __name__ == '__main__':
+    def zero_state(self):
+        for i in range(len(self.connections)):
+            self.connections[i].state = 0
 
-    conn = [Connection(0,4,1,0),Connection(0,5,1,0),Connection(5,4,1,0),Connection(2,5,1,0)]
-    net = Net([0,1,2,3],[4],[5],conn)
-    print(net.count([0,0,0,0]))
-    pass
 
 
 
 
 class Control:
-    def __init__(self,n_inputs, n_outputs) -> None:
+    def __init__(self,n_inputs, n_outputs, net = None) -> None:
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
-        self.conn = [Connection(0,4,1,0),Connection(0,5,1,0),Connection(5,4,1,0),Connection(2,5,1,0)]
-        self.net = Net([0,1,2,3],[4],[5],self.conn)
+        if net == None:
+            self.conn = [Connection(0,4,1,0),Connection(0,5,1,0),Connection(5,4,1,0),Connection(2,5,1,0)]
+            self.net = Net([0,1,2,3],[4],[5],self.conn)
+        else:
+            self.net = deepcopy(net)
         pass
 
     def predict(self, input):
@@ -117,3 +119,20 @@ class Control:
 
     def predict(self, input):
         return self.net.count(input)[0] > 0.85
+
+
+    def predict(self, input):
+        if input[2] < 0:
+            return 1
+        else:
+            return 0
+    
+
+
+
+if __name__ == '__main__':
+
+    conn = [Connection(0,4,1,0),Connection(0,5,1,0),Connection(5,4,1,0),Connection(2,5,1,0)]
+    net = Net([0,1,2,3],[4],[5],conn)
+    print(net.count([0,0,0,0]))
+    pass

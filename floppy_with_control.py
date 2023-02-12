@@ -14,6 +14,7 @@ class Flopy_control:
         self.control_ = control
         self.x_ = x
         self.y_ = y_start
+        self.y_init = y_start
         self.v_ = 0
         self.score = 0
         self.dead_or_alive = True
@@ -57,3 +58,10 @@ class Flopy_control:
         ctrl = self.control_.predict([x,u_l,b_l,self.v_])
         if ctrl == 1:
             self.fly()
+
+    def reset(self):
+        self.revive()
+        self.v_ = 0
+        self.score = 0
+        self.control_.net.zero_state()
+        self.y_ = self.y_init

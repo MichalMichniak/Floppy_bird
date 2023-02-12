@@ -3,6 +3,13 @@ from mario_pipe import Row
 from flopy import Flopy
 from floppy_with_control import Flopy_control
 import random
+from typing import List
+
+NR_OF_ROWS = 5
+X_FLOPY = 50
+NR_OF_INSTANCES = 40
+PIPE_RADIUS = 40
+
 class MainWin:
     def __init__(self) -> None:
         pass
@@ -62,27 +69,19 @@ class MainWin:
             pg.time.delay(40)
             pass
         pass
-    
-    def main_loop_multi_instances(self):
-        pg.init()
-        NR_OF_ROWS = 5
-        X_FLOPY = 50
-        NR_OF_INSTANCES = 40
-        PIPE_RADIUS = 40
-        win = pg.display.set_mode([500,500])
+
+    def simulate(self,win,flopy_lst : List[Flopy_control], delay=40):
         run = True
-
         row_register = [Row(250+random.randint(-120,120),PIPE_RADIUS,250 + 200 * i) for i in range(NR_OF_ROWS)]
-
-        flopy_lst = [Flopy_control(X_FLOPY,250+random.randint(-120,120)) for i in range(NR_OF_INSTANCES)]
         alive_floppy_counter = len(flopy_lst)
         next_row = 0
         begin = 0
         while run:
-            win.fill((0,0,255))
+            win.fill((200,250,255))
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     run = False
+                    return True
 
             # control stage
             for i in range(len(flopy_lst)):
@@ -111,7 +110,6 @@ class MainWin:
                         alive_floppy_counter -=1
                         print(f"{i} killed")
 
-            pg.draw.circle(win,(0,0,0),(row_register[next_row].x_,250),10)
             if row_register[next_row].x_ < X_FLOPY-14:
                 next_row= (next_row+1)%NR_OF_ROWS
                 ## update score
@@ -138,11 +136,25 @@ class MainWin:
                 run = False
             #pg.draw.circle(win,(255,0,0),[250,250],1)
             pg.display.update()
-            pg.time.delay(40)
+            pg.time.delay(delay)
             pass
-        pass
     
+    def main_loop_multi_instances(self):
+        pg.init()
+        win = pg.display.set_mode([500,500])
+        flopy_lst = [Flopy_control(X_FLOPY,250+random.randint(-120,120)) for i in range(NR_OF_INSTANCES)]
+        for i in range(6):
+            # revive stage
+            for j in range(len(flopy_lst)):
+                flopy_lst[j].reset()
+            #simulation stage
+            flag = self.simulate(win,flopy_lst)
+            if flag:
+                break
+            # evolution stage
+            
         
+        pass
 
 
 if __name__ == "__main__":
