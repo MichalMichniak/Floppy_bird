@@ -9,7 +9,7 @@ Added:
  - symulation
  - mutations
  - crossing
- - recursive connection allowed
+ - recursive connection allowed \\
 Not added yet:
  - Speciation
 
