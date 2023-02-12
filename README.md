@@ -1,4 +1,4 @@
-# NEAT Floppy_bird
+# NEAT Floppy_bird (algorithm NEAT implementation)
 algorithm NEAT without Speciation (so far)
 1. run main.py
 2. check your skills in floppy bird (space for fly)
@@ -9,6 +9,7 @@ Added:
   symulation
   mutations
   crossing
+  recursive connection allowed
 Not added yet:
   Speciation
 
