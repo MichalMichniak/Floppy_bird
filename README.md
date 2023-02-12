@@ -6,12 +6,12 @@ algorithm NEAT without Speciation (so far)
 in this phase you may click space to control the speed of symulation
 
 Added:
-  symulation
-  mutations
-  crossing
-  recursive connection allowed
+ - symulation
+ - mutations
+ - crossing
+ - recursive connection allowed
 Not added yet:
-  Speciation
+ - Speciation
 
 PS this project was inspired by many YT videos where plenty of details (algorithm NEAT) differ from each other.
 most of the knowledge about neat i learnt from this webpage ([https://www.cs.cmu.edu])
