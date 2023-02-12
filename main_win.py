@@ -148,7 +148,11 @@ class MainWin:
             pg.time.delay(delay)
         return delay
     
-    def main_loop_multi_instances(self, iteration = 1000):
+    def main_loop_multi_instances(self, rank_by_avg ,iteration = 1000):
+        """
+        args:
+            rank_by_avg : bool - if True algorithm will be counting average score of (survived) instances through iterations
+        """
         pg.init()
         neat = NEAT()
         flag = 0
@@ -163,7 +167,7 @@ class MainWin:
             if type(flag) == bool:
                 break
             # evolution stage
-            flopy_lst = neat.evolve_population(flopy_lst,True)
+            flopy_lst = neat.evolve_population(flopy_lst,rank_by_avg)
         
         pass
 
