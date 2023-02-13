@@ -8,7 +8,7 @@ from NEAT import NEAT
 NR_OF_ROWS = 5
 X_FLOPY = 50
 NR_OF_INSTANCES = 100 
-PIPE_RADIUS = 40
+PIPE_RADIUS = 60
 class MainWin:
     def __init__(self) -> None:
         pass
@@ -148,7 +148,7 @@ class MainWin:
             pg.time.delay(delay)
         return delay
     
-    def main_loop_multi_instances(self, rank_by_avg ,iteration = 1000):
+    def main_loop_multi_instances(self, rank_by_avg = False ,iteration = 1000):
         """
         args:
             rank_by_avg : bool - if True algorithm will be counting average score of (survived) instances through iterations

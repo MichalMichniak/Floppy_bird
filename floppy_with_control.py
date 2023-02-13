@@ -30,7 +30,7 @@ class Flopy_control:
 
 
     def fly(self):
-        self.v_ = -10
+        self.v_ = -5
 
 
     def draw(self,win):

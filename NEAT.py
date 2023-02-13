@@ -20,6 +20,10 @@ class NEAT:
         self.input_neurons_nr = [0,1,2,3]
         self.output_neurons_nr = [4]
         self.additional_neurons = []
+        ## Speciation params:
+        self.c1 = 1.0
+        self.c2 = 1.0
+        self.c3 = 0.5
 
 
     def evolve_population(self, lst_insta : List[Flopy_control], score_avg = False):
@@ -34,8 +38,15 @@ class NEAT:
             lst_insta.sort(key= lambda x: x.avg_score, reverse=True)
         else:
             lst_insta.sort(key= lambda x: x.score, reverse=True)
+        #Speciation
+        for i in lst_insta:
+            for j in lst_insta:
+                self.compare(i.control_.net,j.control_.net)
+
         pop_count = len(lst_insta)
         lst_insta = lst_insta[:len(lst_insta)//2 + 1]
+        
+        
         ## mutation
         for i in range(pop_count-len(lst_insta)):
             r1 = random.randint(0,len(lst_insta)-1)
@@ -139,12 +150,44 @@ class NEAT:
                         list_of_conn.append(list_of_conn2[conn2_idx])
                 conn1_idx+=1
                 conn2_idx+=1
-            if conn1_idx == len(list_of_conn1):
-                list_of_conn.extend(list_of_conn2[conn2_idx:])
+            if conn2_idx == len(list_of_conn2) and conn1_idx == len(list_of_conn1):
                 run = False
             elif conn2_idx == len(list_of_conn2):
                 list_of_conn.extend(list_of_conn1[conn1_idx:])
                 run = False
-            elif conn2_idx == len(list_of_conn2) and conn1_idx == len(list_of_conn1):
+            elif conn1_idx == len(list_of_conn1):
+                list_of_conn.extend(list_of_conn2[conn2_idx:])
                 run = False
         return Net(deepcopy(self.input_neurons_nr),deepcopy(self.output_neurons_nr),list_of_neurons,list_of_conn)
+
+    def compare(self, net1 : Net, net2 : Net):
+        w_diff = 0
+        excess = 0
+        disjoint = 0
+        list_of_conn1 = net1.connections
+        list_of_conn2 = net2.connections
+        n = max(len(list_of_conn1),len(list_of_conn2))
+        conn_net1_idx = 0
+        conn_net2_idx = 0
+        run = True
+        while run:
+            if self.dictionary_of_connections[str(list_of_conn1[conn_net1_idx])] > self.dictionary_of_connections[str(list_of_conn2[conn_net2_idx])]:
+                disjoint += 1
+                conn_net2_idx+=1
+            elif self.dictionary_of_connections[str(list_of_conn1[conn_net1_idx])] < self.dictionary_of_connections[str(list_of_conn2[conn_net2_idx])]:
+                disjoint += 1
+                conn_net1_idx+=1
+            else:
+                w_diff += abs(list_of_conn1[conn_net1_idx].weight - list_of_conn2[conn_net2_idx].weight)
+                conn_net1_idx+=1
+                conn_net2_idx+=1
+        
+            if conn_net2_idx == len(list_of_conn2) and conn_net1_idx == len(list_of_conn1):
+                run = False
+            elif conn_net2_idx == len(list_of_conn2):
+                excess = len(list_of_conn1[conn_net1_idx:])
+                run = False
+            elif conn_net1_idx == len(list_of_conn1):
+                excess = len(list_of_conn2[conn_net2_idx:])
+                run = False
+        return (self.c1*excess/n)+(self.c2*disjoint/n) + (self.c3*w_diff)
