@@ -24,6 +24,8 @@ class NEAT:
         self.c1 = 1.0
         self.c2 = 1.0
         self.c3 = 0.5
+        self.species_treshold = 4
+        self.max_species = 6
 
 
     def evolve_population(self, lst_insta : List[Flopy_control], score_avg = False):
@@ -38,21 +40,80 @@ class NEAT:
             lst_insta.sort(key= lambda x: x.avg_score, reverse=True)
         else:
             lst_insta.sort(key= lambda x: x.score, reverse=True)
+        
         #Speciation
-        for i in lst_insta:
-            for j in lst_insta:
-                self.compare(i.control_.net,j.control_.net)
+        species_lst : List[List[Flopy_control]] = []
+        species_lst.append([lst_insta[0]])
+        for i in range(1,len(lst_insta)):
+            for j in range(len(species_lst)):
+                if self.compare(lst_insta[i].control_.net,species_lst[j][0].control_.net) < self.species_treshold:
+                    species_lst[j].append(lst_insta[i])
+                    break
+            else:
+                species_lst.append([lst_insta[i]])
+        
+        ## count fitness function for each population:
+        avg_score = [0 for i in range(len(species_lst))]
+        for i in range(len(species_lst)):
+            for j in range(len(species_lst[i])):
+                if score_avg:
+                    avg_score[i]+=species_lst[i][j].avg_score+1
+                else:
+                    avg_score[i]+=species_lst[i][j].score+1
+            avg_score[i]=avg_score[i]/(len(species_lst[i]))
 
         pop_count = len(lst_insta)
-        lst_insta = lst_insta[:len(lst_insta)//2 + 1]
+        ## half the population of each species
         
+        for i in range(len(species_lst)):
+            if len(species_lst[i]) == 1:
+                r = random.randint(0,1)
+                if r == 1:
+                    species_lst[i] = []
+            else:
+                species_lst[i] = species_lst[i][:len(species_lst[i])//2]
         
-        ## mutation
-        for i in range(pop_count-len(lst_insta)):
-            r1 = random.randint(0,len(lst_insta)-1)
-            r2 = random.randint(0,len(lst_insta)-1)
-            new_network = self.mutate(self.cross(lst_insta[r1].control_.net,lst_insta[r2].control_.net))
-            lst_insta.append(Flopy_control(X_FLOPY,250+random.randint(-120,120),Control(len(self.input_neurons_nr),len(self.output_neurons_nr),new_network)))
+        i = 0
+        while i != len(species_lst):
+            if species_lst[i] == []:
+                avg_score.pop(i)
+                species_lst.pop(i)
+                i-=1
+            i+=1
+        if len(species_lst) > self.max_species:
+            execute = len(species_lst) - self.max_species
+            for i in range(execute):
+                idx = avg_score.index(min(avg_score))
+                avg_score.pop(idx)
+                species_lst.pop(idx)
+        
+        total_population = 0
+        for i in range(len(species_lst)):
+            total_population += len(species_lst[i])
+        
+        generate_nr = pop_count - total_population
+
+
+        normalised_avg_score = [(i/sum(avg_score) if sum(avg_score)!= 0 else 0)  for i in avg_score]
+        to_generate = [round(normalised_avg_score[i]*generate_nr - 0.00000001) for i in range(len(normalised_avg_score))]
+        rest = pop_count - total_population - sum(to_generate)
+        to_generate[0] += rest
+        lst_insta = []
+        for i in range(len(species_lst)):
+            lst_insta.extend(species_lst[i])
+        
+        ## crossing & mutation
+        for i in range(len(to_generate)):
+            for j in range(to_generate[i]):
+                if len(species_lst[i]) == 1:
+                    new_network = self.mutate(self.cross(species_lst[i][0].control_.net,species_lst[i][0].control_.net))
+                    lst_insta.append(Flopy_control(X_FLOPY,250+random.randint(-120,120),Control(len(self.input_neurons_nr),len(self.output_neurons_nr),new_network)))
+                else:
+                    r1 = random.randint(0,len(species_lst[i])-1)
+                    r2 = random.randint(0,len(species_lst[i])-1)
+                    new_network = self.mutate(self.cross(species_lst[i][r1].control_.net,species_lst[i][r2].control_.net))
+                    lst_insta.append(Flopy_control(X_FLOPY,250+random.randint(-120,120),Control(len(self.input_neurons_nr),len(self.output_neurons_nr),new_network)))
+        print(f"number of species: {len(species_lst)} , population: {len(lst_insta)}")
         return lst_insta
     
     def mutate(self, insta : Net)-> Net:

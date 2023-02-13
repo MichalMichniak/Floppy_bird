@@ -8,7 +8,7 @@ from NEAT import NEAT
 NR_OF_ROWS = 5
 X_FLOPY = 50
 NR_OF_INSTANCES = 100 
-PIPE_RADIUS = 60
+PIPE_RADIUS = 50
 class MainWin:
     def __init__(self) -> None:
         pass
