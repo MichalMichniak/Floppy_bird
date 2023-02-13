@@ -1,16 +1,16 @@
 # NEAT Floppy_bird (algorithm NEAT implementation)
-algorithm NEAT without Speciation (so far)
+algorithm NEAT
 1. run main.py
 2. check your skills in floppy bird (space for fly)
-3. when you loose algorithm will start running and throughout NEAT algorithm it will be optimalising the structure of neural net
+3. when you loose algorithm will start running and throughout NEAT algorithm it will be optimalising the structure of neural network
 in this phase you may click space to control the speed of symulation
 
-TODO:
+Achieved goals:
 - [x] symulation
 - [x] mutations
 - [x] crossing
 - [x] recursive connection allowed 
-- [ ] Speciation
+- [x] Speciation
 
 PS this project was inspired by many YT videos where plenty of details (algorithm NEAT) differ from each other.
 most of the knowledge about neat i learnt from this webpage ([https://www.cs.cmu.edu])
